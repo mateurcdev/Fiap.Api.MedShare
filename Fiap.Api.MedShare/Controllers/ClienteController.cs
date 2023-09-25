@@ -1,11 +1,10 @@
-﻿using Fiap.Api.MedShare.Models;
-using Fiap.Api.MedShare.Controllers.Filters;
+﻿using Fiap.Api.MedShare.Controllers.Filters;
 using Fiap.Api.MedShare.Models;
 using Fiap.Api.MedShare.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace Fiap.Web.AspNet.Controllers
+namespace Fiap.Api.MedShare.Controllers
 {
     public class ClienteController : Controller
     {

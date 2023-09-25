@@ -1,7 +1,6 @@
 ﻿using Fiap.Api.MedShare.Models;
 using Oracle.ManagedDataAccess.Client;
-
-namespace Fiap.Web.AspNet.Repository;
+namespace Fiap.Api.MedShare.Repository;
 
 public class RepresentanteRepository
 {

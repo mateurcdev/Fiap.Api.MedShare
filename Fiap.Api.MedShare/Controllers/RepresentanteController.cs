@@ -1,66 +1,97 @@
-﻿using Fiap.Api.MedShare.Models;
+﻿using Fiap.Api.MedShare.Controllers.Filters;
+using Fiap.Api.MedShare.Models;
+using Fiap.Api.MedShare.Repository;
 using Microsoft.AspNetCore.Mvc;
 namespace Fiap.Api.MedShare.Controllers;
 
 public class RepresentanteController : Controller
 {
 
-    private IList<RepresentanteModel> representantes;
+    private RepresentanteRepository representanteRepository;
 
     public RepresentanteController()
     {
-        // De uma forma rudimentar, podemos dizer que esse bloco de código 
-        // simula o retorno de uma consulta no banco de dados
-        representantes = new List<RepresentanteModel>();
-        representantes.Add(new RepresentanteModel(1, "444.143.658-05", "José Carlos Silva"));
-        representantes.Add(new RepresentanteModel(2, "062.572.723-19", "Maria José Fernandes"));
-        representantes.Add(new RepresentanteModel(3, "920.680.661-06", "Carlos Silva"));
-        representantes.Add(new RepresentanteModel(4, "111.222.333-06", "Joao Triste"));
-        representantes.Add(new RepresentanteModel(4, "111.222.333-06", "Rafael Feliz"));
+
+        representanteRepository = new RepresentanteRepository();
     }
 
+    [LogFilter]
     public IActionResult Index()
     {
-        return View(representantes); // <-- Atenção
+        // Retornando para View a lista de Representantes
+        var lista = representanteRepository.Listar();
+
+        return View(lista);
     }
-    
+
+    // Anotação de uso do Verb HTTP Get
     [HttpGet]
     public IActionResult Cadastrar()
     {
-       
-        Console.WriteLine("Executou a Action Cadastrar()");
-
-       
+        // Retorna para a View Cadastrar um 
+        // objeto modelo com as propriedades em branco 
         return View(new RepresentanteModel());
     }
 
-
+    // Anotação de uso do Verb HTTP Post
     [HttpPost]
     public IActionResult Cadastrar(RepresentanteModel representante)
     {
-
-        // Se o ModelState não possuir nenhum erro
         if (ModelState.IsValid)
         {
-            // Imprime os valores do modelo
-            Console.WriteLine("Descrição: " + representante.Cpf);
-            Console.WriteLine("Comercializado: " + representante.NomeRepresentante);
 
-            // Simila que os dados foram gravados.
-            Console.WriteLine("Gravando o Representante");
+            representanteRepository.Inserir(representante);
 
             TempData["mensagem"] = "Representante cadastrado com sucesso";
-
-            // Substituímos o return View()
-            // pelo método de redirecionamento
             return RedirectToAction("Index", "Representante");
-
-            // Caso o ModelState tenha algum erro
         }
         else
         {
-            // retorna para tela do formulário
             return View(representante);
         }
     }
+
+
+    [HttpGet]
+    public IActionResult Editar([FromRoute] int id)
+    {
+        var representante = representanteRepository.Consultar(id);
+        return View(representante);
+    }
+
+    [HttpPost]
+    public IActionResult Editar(RepresentanteModel representante)
+    {
+        if (ModelState.IsValid)
+        {
+            representanteRepository.Alterar(representante);
+
+            TempData["mensagem"] = "Representante alterado com sucesso";
+            return RedirectToAction("Index", "Representante");
+        }
+        else
+        {
+            return View(representante);
+        }
+
+    }
+
+
+    [HttpGet]
+    public IActionResult Consultar(int id)
+    {
+        var representante = representanteRepository.Consultar(id);
+        return View(representante);
+    }
+
+    [HttpGet]
+    public IActionResult Excluir(int id)
+    {
+        representanteRepository.Excluir(id);
+
+        TempData["mensagem"] = "Representante excluído com sucesso";
+        return RedirectToAction("Index", "Representante");
+    }
+
+
 }
