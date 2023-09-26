@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-
 namespace Fiap.Api.MedShare.Controllers.Filters;
 
 public class LogFilter : ActionFilterAttribute

@@ -1,97 +1,75 @@
 ﻿using Fiap.Api.MedShare.Controllers.Filters;
 using Fiap.Api.MedShare.Models;
 using Fiap.Api.MedShare.Repository;
+using Fiap.Api.MedShare.Repository.Context;
 using Microsoft.AspNetCore.Mvc;
-namespace Fiap.Api.MedShare.Controllers;
 
-public class RepresentanteController : Controller
+
+namespace Fiap.Api.MedShare.Controllers
 {
-
-    private RepresentanteRepository representanteRepository;
-
-    public RepresentanteController()
+    public class RepresentanteRepository
     {
 
-        representanteRepository = new RepresentanteRepository();
-    }
+        private readonly DataBaseContext dataBaseContext;
 
-    [LogFilter]
-    public IActionResult Index()
-    {
-        // Retornando para View a lista de Representantes
-        var lista = representanteRepository.Listar();
-
-        return View(lista);
-    }
-
-    // Anotação de uso do Verb HTTP Get
-    [HttpGet]
-    public IActionResult Cadastrar()
-    {
-        // Retorna para a View Cadastrar um 
-        // objeto modelo com as propriedades em branco 
-        return View(new RepresentanteModel());
-    }
-
-    // Anotação de uso do Verb HTTP Post
-    [HttpPost]
-    public IActionResult Cadastrar(RepresentanteModel representante)
-    {
-        if (ModelState.IsValid)
+        public RepresentanteRepository(DataBaseContext ctx)
         {
-
-            representanteRepository.Inserir(representante);
-
-            TempData["mensagem"] = "Representante cadastrado com sucesso";
-            return RedirectToAction("Index", "Representante");
-        }
-        else
-        {
-            return View(representante);
-        }
-    }
-
-
-    [HttpGet]
-    public IActionResult Editar([FromRoute] int id)
-    {
-        var representante = representanteRepository.Consultar(id);
-        return View(representante);
-    }
-
-    [HttpPost]
-    public IActionResult Editar(RepresentanteModel representante)
-    {
-        if (ModelState.IsValid)
-        {
-            representanteRepository.Alterar(representante);
-
-            TempData["mensagem"] = "Representante alterado com sucesso";
-            return RedirectToAction("Index", "Representante");
-        }
-        else
-        {
-            return View(representante);
+            dataBaseContext = ctx;
         }
 
+
+
+        public IList<RepresentanteModel> Listar()
+        {
+            var lista = new List<RepresentanteModel>();
+
+            // Efetuando a listagem (Substituindo o Select *)
+            lista = dataBaseContext.Representante.ToList<RepresentanteModel>();
+
+            return lista;
+        }
+
+        public RepresentanteModel Consultar(int id)
+        {
+            // Recuperando o objeto Representante de um determinado Id
+            var representante = dataBaseContext.Representante.Find(id);
+
+            return representante;
+        }
+
+        public void Inserir(RepresentanteModel representante)
+        {
+            // a propriedade dataBaseContext é declarada no escopo da classe
+            // e sua instância é recebida pelo construtor da classe Repository
+            // veja na solução final da classe RepresentanteRepository
+
+            // Adiciona o objeto preenchido pelo usuário
+            dataBaseContext.Representante.Add(representante);
+
+            // Salva as alterações
+            dataBaseContext.SaveChanges();
+
+        }
+
+        public void Alterar(RepresentanteModel representante)
+        {
+            dataBaseContext.Representante.Update(representante);
+
+            // Salva as alterações
+            dataBaseContext.SaveChanges();
+        }
+
+        public void Excluir(int id)
+        {
+            var representante = new RepresentanteModel(id, "");
+
+            dataBaseContext.Representante.Remove(representante);
+
+            // Salva as alterações
+            dataBaseContext.SaveChanges();
+
+        }
+
+
     }
-
-
-    [HttpGet]
-    public IActionResult Consultar(int id)
-    {
-        var representante = representanteRepository.Consultar(id);
-        return View(representante);
-    }
-
-    [HttpGet]
-    public IActionResult Excluir(int id)
-    {
-        representanteRepository.Excluir(id);
-
-        TempData["mensagem"] = "Representante excluído com sucesso";
-        return RedirectToAction("Index", "Representante");
-    }
-
-
 }
